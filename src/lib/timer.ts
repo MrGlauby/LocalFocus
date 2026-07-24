@@ -1,3 +1,5 @@
+export const CIRCLE_MINUTES = 60;
+
 export function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
