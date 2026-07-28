@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  publish:
+  publish-desktop:
     strategy:
       fail-fast: false
       matrix:
@@ -63,10 +63,102 @@ jobs:
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_SIGNING_IDENTITY: "-"
         with:
           tagName: v__VERSION__
           releaseName: "localFocus v__VERSION__"
-          releaseBody: "See the assets to download this version and install."
+          releaseBody: |
+            ## localFocus v__VERSION__
+
+            ### Download
+
+            - **macOS (Apple Silicon)**: `localFocus.app.tar.gz`
+            - **macOS (Intel)**: `localFocus.app.tar.gz`
+            - **Windows**: `localFocus.msi`
+            - **Linux**: `localFocus.AppImage` oder `localFocus.deb`
+
+            ### Installation
+
+            **macOS**: App aus dem Archiv in den Applications Ordner ziehen
+            **Windows**: MSI-Datei ausfuehren
+            **Linux**: AppImage ausfuehbar machen (`chmod +x`) oder Deb-Datei installieren
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+  publish-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: Init Android project
+        run: pnpm tauri android init
+
+      - name: Generate keystore
+        run: |
+          keytool -genkey -v \
+            -keystore release.keystore \
+            -alias localfocus \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass android123 \
+            -keypass android123 \
+            -dname "CN=localFocus"
+
+      - name: Move keystore
+        run: mv release.keystore src-tauri/gen/android/app/release.keystore
+
+      - name: Configure signing
+        working-directory: src-tauri/gen/android
+        run: |
+          echo "storePassword=android123" >> local.properties
+          echo "keyAlias=localfocus" >> local.properties
+          echo "keyPassword=android123" >> local.properties
+
+      - name: Build Android APK
+        working-directory: src-tauri/gen/android
+        run: ./gradlew assembleRelease
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=$(jq -r .version src-tauri/tauri.conf.json)" >> $GITHUB_OUTPUT
+
+      - name: Upload APK to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          files: src-tauri/gen/android/app/build/outputs/apk/release/app-release.apk
+          draft: true

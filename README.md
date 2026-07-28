@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# localFocus
 
-## Getting Started
+A minimalist Pomodoro/Focus timer as a desktop and Android app.
 
-First, run the development server:
+> "See time, not just read it."
+
+## Features
+
+- **Pomodoro Timer** with start, pause, reset
+- **Time presets**: 25, 15, 10, 5 minutes
+- **Visual progress** as an animated circle
+- **Desktop app** (macOS, Windows, Linux) via Tauri
+- **Android app** via Tauri
+
+## Download
+
+Download the app for your platform directly from **[GitHub Releases](https://github.com/MrGlauby/LocalFocus/releases)**.
+
+### Platforms
+
+| Platform | File | Installation |
+|----------|------|-------------|
+| **macOS (Apple Silicon)** | `localFocus.app.tar.gz` | Extract and drag app to Applications folder |
+| **macOS (Intel)** | `localFocus.app.tar.gz` | Extract and drag app to Applications folder |
+| **Windows** | `localFocus.msi` | Run the MSI installer |
+| **Linux** | `localFocus.AppImage` | `chmod +x localFocus.AppImage` then run it |
+| **Linux (Debian/Ubuntu)** | `localFocus.deb` | `sudo dpkg -i localFocus.deb` |
+| **Android** | `localFocus.apk` | Install APK (enable unknown sources) |
+
+### Android
+
+1. Download the APK file
+2. On your device: **Settings > Security > Unknown Sources** and enable it
+3. Open the APK file and install
+
+## Development
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (LTS)
+- [pnpm](https://pnpm.io/)
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Tauri CLI](https://v2.tauri.app/start/prerequisites/)
+
+### Start development server
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Frontend
 pnpm dev
-# or
-bun dev
+
+# Tauri desktop app
+pnpm tauri dev
+
+# Tests
+pnpm test
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Build
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Build desktop app
+pnpm tauri build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Frontend only (static export)
+pnpm build
+```
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS 4
+- **Desktop**: Tauri 2 (Rust)
+- **Testing**: Vitest, @testing-library/react
+- **Build**: Static Export + Tauri Bundle
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Security
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+See [SECURITY.md](SECURITY.md) for details on security measures and responsible disclosure.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
