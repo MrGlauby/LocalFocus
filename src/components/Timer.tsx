@@ -15,11 +15,26 @@ export function Timer() {
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <CircleTimer progress={progress} size={300}>
+    {/*   <CircleTimer progress={progress} size={300}>
+        <span className="text-4xl font-mono font-semibold tabular-nums text-gray-800">
+          {formatTime(timeLeft)}
+        </span>
+      </CircleTimer> */}
+
+      <CircleTimer
+        progress={progress}
+        size={300}
+        minutes={currentMinutes}
+        maxMinutes={CIRCLE_MINUTES}
+        onChange={isRunning ? undefined : setDuration}
+      >
         <span className="text-4xl font-mono font-semibold tabular-nums text-gray-800">
           {formatTime(timeLeft)}
         </span>
       </CircleTimer>
+
+
+
 
       <div className="flex gap-3">
         {!isRunning ? (
